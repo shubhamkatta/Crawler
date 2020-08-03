@@ -1,0 +1,17 @@
+<phpunit bootstrap="vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Shubham Crawler">
+            <directory>tests/crawler</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix="*.php">src/crawler</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="testdoc-html" target="./log/testdox.html"></log>
+    </logging>
+</phpunit
