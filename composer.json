@@ -15,7 +15,9 @@
     "autoload-dev": {
         "psr-4": {"crawler\\": "src/tests"}
     },
-    "require": {},
+    "require": {
+        "symfony/console": "^5.1"
+    },
     "require-dev": {
         "phpunit/phpunit": "^7"
     }
