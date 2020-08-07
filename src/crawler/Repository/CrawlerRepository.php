@@ -43,7 +43,7 @@ class Crawler implements ICrawl
 			echo "Started Crawling: ".$this->Website.PHP_EOL;
 			echo "Getting child URLs...";
 			$this->GetChildURL($this->Website);
-			echo "success! ".PHP_EOL;
+			echo " success! ".PHP_EOL;
             //var_dump($this->crawledLinks);
 
             #Removing Duplicate Links
