@@ -8,7 +8,7 @@ interface IReadTxtFile
 
 interface IWriteJsonFile
 {
-	public function WriteFile($ResponseObject);
+	public function WriteFile($ResponseObject, $FileName);
 }
 
 class FileHandler implements IReadTxtFile, IWriteJsonFile
@@ -17,15 +17,23 @@ class FileHandler implements IReadTxtFile, IWriteJsonFile
 	{
 		try
 		{
-			$response = array();
-			$myfile = fopen($filename, "r") or die("Unable to open file!");
-			$i=0;
-			while(!feof($myfile)) 
-			{
-			  $response['name'][$i]=stripcslashes(fgets($myfile));
-			  $i++;
-			}
-			fclose($myfile);
+            $response = array();
+            $i=0;
+            if(file_exists($filename))
+            {
+                $myfile = fopen($filename, "r") or die("Unable to open file!");
+                while(!feof($myfile)) 
+                {
+                    $response['name'][$i]=stripcslashes(fgets($myfile));
+                    $i++;
+                }
+                fclose($myfile);
+            }
+            else
+            {
+                echo "Invalid path! Current working directory is: ".getcwd()."\n";
+            }
+			
 			
 			if($i > 0)
 			{
@@ -40,11 +48,11 @@ class FileHandler implements IReadTxtFile, IWriteJsonFile
 		}	
 	}
 
-	public function WriteFile($ResponseObject)
+	public function WriteFile($ResponseObject, $FileName)
 	{
 		try
 		{
-			$fp = fopen('CrawlerResult/result.json', 'w');
+			$fp = fopen($FileName, 'w');
 			fwrite($fp, $ResponseObject);
 			fclose($fp);
 		}

@@ -8,8 +8,10 @@ use crawler\CrawlerCommand;
 
 $application = new Application();
 $crawler = new CrawlerCommand();
-// ... register commands
+
+// register commands
 $application->add($crawler);
-//$application->setDefaultCommand($crawler->getName(), true);
+
+//run application
 $application->run();
 ?>

@@ -1,5 +1,7 @@
 <?php
 namespace crawler\Repository;
+use \DOMDocument;
+
 interface ICrawl
 {
 	public function Crawl();
@@ -11,21 +13,21 @@ interface ICrawl
 	public function insertIntoDatabase($link, $depth);
 }
 
-class Crawl implements ICrawl
+class Crawler implements ICrawl
 {
 	public $Website;
 	public $Keywords;
 	public $crawledLinks;
 	public $ResponseObject;
 
-	function Crawler($Websites, $Keywords)
+	function __construct($Websites, $Keywords)
 	{
 		try
 		{
 			$this->Website=$Websites;
 			$this->Keywords=$Keywords;
 			$this->crawledLinks = array();
-			//print_r($this->Websites);
+			//print_r($this->Website);
 			//print_r($this->Keywords);
 		}
 		catch(Exception $ex)
@@ -38,32 +40,59 @@ class Crawl implements ICrawl
 	{
 		try
 		{
-			$this->GetChildURL($this->Website);
+            $this->GetChildURL($this->Website);
+            //var_dump($this->crawledLinks);
 
-			#Removing Duplicate Links
-			$this->crawledLinks = array_unique($this->crawledLinks);
-
+            #Removing Duplicate Links
+            $UniqueLinks = array();
+            $UniqueLinks = array_unique($this->crawledLinks);
+            //var_dump($UniqueLinks);
+            
+            $options = array( 
+                'http' => array( 
+                    'method' => "GET", 
+                    'user-agent' => "skBot/0.1\n"
+                )
+                , 'ssl' => array(
+                    "verify_peer"=>false,
+                    "verify_peer_name"=>false,
+                    'cafile' =>  "cacert.pem",
+                    'ciphers' => 'HIGH:TLSv1.2:TLSv1.1:TLSv1.0:!SSLv3:!SSLv2'
+                    ) 
+            ); 
+      
+            $context = stream_context_create($options); 
+    
 			#Removing Social Links and Creating a Link Object to Process
 			$LinkObject['link']= array();
 			$LinkObject['dom']= array();
-			$c=0;
-			for ($i=0; $i < count($this->crawledLinks); $i++) 
+            $c=0;
+
+            $i=0;
+            foreach($UniqueLinks as $ulink)
+			//for ($i=0; $i < count($UniqueLinks); $i++) 
 			{ 
 	    		$domain = preg_replace( "#^[^:/.]*[:/]+#i", "", $this->Website);
-	    		$link = $this->crawledLinks[$i];
-	    		//echo $domain.'<br><br>';
-	    		$pos =strpos($link, $domain);
-	    		if($pos !== false)
+	    		$link = $ulink;
+            
+                //var_dump($domain);
+                
+                $pos =strpos($link, $domain);
+                //var_dump($link);
+                //var_dump($pos);
+
+	    		if($pos)
 	    		{
+                    //var_dump($link);
 	    			#Create Link Object
 	    			$LinkObject['link'][$c] = $link;
-			        $dom = new DOMDocument('1.0');
-		    		@$dom->loadHTMLFile($link);
-			        $LinkObject['dom'][$c] = strtolower($dom->textContent);
+                    $doc = new DomDocument();
+                    @$doc->loadHTML(file_get_contents($link, false, $context));
+                    $LinkObject['dom'][$c] = strtolower($doc->textContent);
 			        $c++;
 	    		}
 			}
-
+            //var_dump($LinkObject);
 			#Get Search Response
 			$Response = $this->SearchDOMBody($LinkObject);
 			return json_encode($Response);	
@@ -82,7 +111,7 @@ class Crawl implements ICrawl
 		}
 		catch(Exception $ex)
 		{
-
+            echo "Unable to fetch child links of the parent".$ex->message;
 		}		
 	}
 	
@@ -112,7 +141,7 @@ class Crawl implements ICrawl
 		}
 		return $ResponseObject;
 		//var_dump(json_encode($ResponseObject));	
-	}
+    }
 
 	public function followLink($url, $depth = 2)
 	{ 
@@ -128,14 +157,23 @@ class Crawl implements ICrawl
             'http' => array( 
                 'method' => "GET", 
                 'user-agent' => "skBot/0.1\n"
-            ) 
+            )
+            , 'ssl' => array(
+                "verify_peer"=>false,
+                "verify_peer_name"=>false,
+                'cafile' =>  "cacert.pem",
+                'ciphers' => 'HIGH:TLSv1.2:TLSv1.1:TLSv1.0:!SSLv3:!SSLv2'
+                ) 
         ); 
   
         $context = stream_context_create($options); 
-        $doc = new DomDocument(); 
-        @$doc -> loadHTML(file_get_contents($url, false, $context)); 
+
+        $doc = new DomDocument();
+        @$doc->loadHTML(file_get_contents($url, false, $context)); 
         $links = $doc->getElementsByTagName('a'); 
-  
+        //var_dump($url);
+        //var_dump($doc);
+        //var_dump($links);
         foreach ($links as $i)
         { 
             $link = $i->getAttribute('href'); 
