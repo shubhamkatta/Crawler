@@ -24,6 +24,11 @@
   - There are two ways in which this program can be invoked:
     1. Passing parameters with command line
     Eg. ```php crawler.php crawl http://example.com keyword1,keyword2```
-    > **php** - to run the phhp executable
-    > **crawler.php** - the main executable file which triggers the program
-    > **crawl** - command name to run the crawler command
+    - **php** - ```to run``` the php executable
+    - **crawler.php** - ```the main executable file``` which triggers the program
+    - **crawl** - ```command name``` to run the crawler command
+    - **http://example.com** - ```website home URL``` that has to be crawled
+    - ***abc,def,fgi,123*** - ```comma separated keywords``` without any space
+    
+    2. Using the ```text files``` to provide the input
+    Eg. ```php crawler.php crawl```
