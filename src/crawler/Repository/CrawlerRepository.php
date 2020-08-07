@@ -40,7 +40,10 @@ class Crawler implements ICrawl
 	{
 		try
 		{
-            $this->GetChildURL($this->Website);
+			echo "Started Crawling: ".$this->Website.PHP_EOL;
+			echo "Getting child URLs...";
+			$this->GetChildURL($this->Website);
+			echo "success! ".PHP_EOL;
             //var_dump($this->crawledLinks);
 
             #Removing Duplicate Links
@@ -86,16 +89,21 @@ class Crawler implements ICrawl
                     //var_dump($link);
 	    			#Create Link Object
 	    			$LinkObject['link'][$c] = $link;
-                    $doc = new DomDocument();
+					
+					echo "Crawling link: ".$link;
+					$doc = new DomDocument();
                     @$doc->loadHTML(file_get_contents($link, false, $context));
-                    $LinkObject['dom'][$c] = strtolower($doc->textContent);
+					$LinkObject['dom'][$c] = strtolower($doc->textContent);
+					echo " success!".PHP_EOL;
 			        $c++;
 	    		}
 			}
             //var_dump($LinkObject);
 			#Get Search Response
+			echo "Scanning for keywords: please wait, this may take a while!".PHP_EOL;
 			$Response = $this->SearchDOMBody($LinkObject);
-			return json_encode($Response);	
+			echo "Scanning completed!".PHP_EOL;
+			return json_encode($Response);
 		}
 		catch(Exception $ex)
 		{
